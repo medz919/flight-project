@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.4">
+  <style type="text/css">
+    body {background-color: #0a0a0d}
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 26.4px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 8.4px 'Helvetica Neue'; color: #484767; -webkit-text-stroke: #484767}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 19.2px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15}
+    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 7.2px 'Helvetica Neue'; color: #484767; -webkit-text-stroke: #484767}
+    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 9.0px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15; background-color: #0d0d14}
+    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 9.0px 'Helvetica Neue'; color: #484767; -webkit-text-stroke: #484767; background-color: #0d0d14}
+    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 9.0px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15}
+    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; font: 7.2px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15}
+    p.p9 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 36.0px 'Helvetica Neue'; color: #171628; -webkit-text-stroke: #171628}
+    p.p10 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 10.2px 'Helvetica Neue'; color: #484767; -webkit-text-stroke: #484767}
+    span.s1 {font-kerning: none; background-color: #0d0d14}
+    span.s2 {font-kerning: none}
+    span.s3 {font-kerning: none; background-color: #0a0a0d}
+    span.s4 {font-kerning: none; background-color: #0b0b11}
+  </style>
+</head>
+<body>
+<p class="p1"><span class="s1">✈ DEPARTURES</span></p>
+<p class="p2"><span class="s1">LIVE FLIGHT BOARD</span></p>
+<p class="p3"><span class="s1">--:--:--</span></p>
+<p class="p4"><span class="s1">LOCAL TIME</span></p>
+<p class="p5"><span class="s2">ALL</span></p>
+<p class="p6"><span class="s2">SCHEDULED</span></p>
+<p class="p6"><span class="s2">IN AIR</span></p>
+<p class="p6"><span class="s2">LANDED</span></p>
+<p class="p6"><span class="s2">CANCELLED</span></p>
+<p class="p6"><span class="s2">DELAYED</span></p>
+<p class="p7"><span class="s3">↻ REFRESH</span></p>
+<p class="p8"><span class="s4">FLIGHT</span></p>
+<p class="p8"><span class="s4">AIRLINE</span></p>
+<p class="p8"><span class="s4">FROM</span></p>
+<p class="p8"><span class="s4">TO</span></p>
+<p class="p8"><span class="s4">SCHEDULED</span></p>
+<p class="p8"><span class="s4">STATUS</span></p>
+<p class="p9"><span class="s2">LOADING</span></p>
+<p class="p10"><span class="s2">FETCHING LIVE FLIGHT DATA...</span></p>
+</body>
+</html>
