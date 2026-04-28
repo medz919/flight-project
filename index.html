@@ -708,7 +708,7 @@ document.getElementById('searchClear').addEventListener('click', function() {
     board.innerHTML = `<div class="state-message"><span class="big">LOADING</span>Fetching live data...</div>`;
 
     try {
-        const res = await fetch('http://localhost:3001/flights/search', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({origin: origin||'MNL', destination: destination||'SIN', date: date||'2026-06-01', adults: parseInt(passengers)||1})});
+        const res = await fetch('https://flight-project-production-7ab7.up.railway.app/flights/search', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({origin: origin||'MNL', destination: destination||'SIN', date: date||'2026-06-01', adults: parseInt(passengers)||1})});
       const data = await res.json();
       allFlights = (data.data || []).map(offer => {
     const slice = offer.slices?.[0] || {};
