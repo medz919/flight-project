@@ -917,3 +917,25 @@ setupAutocomplete('toInput', 'toDropdown');
 </script>
 </body>
 </html>
+<script>
+document.addEventListener('click', function(e) {
+  const row = e.target.closest('.flight-row');
+  if (!row) return;
+  const cells = row.querySelectorAll('.airport-code');
+  const airline = row.querySelector('.airline-name')?.textContent;
+  const flight = row.querySelector('.flight-number')?.textContent;
+  const from = cells[0]?.textContent;
+  const to = cells[1]?.textContent;
+  const name = prompt('Enter passenger name:');
+  if (!name) return;
+  const w = window.open('');
+  w.document.write(`<html><body style="background:#000;color:#FFD700;font-family:monospace;padding:40px">
+  <h1>✈ BOARDING PASS</h1>
+  <p>PASSENGER: ${name}</p>
+  <p>FLIGHT: ${flight} | AIRLINE: ${airline}</p>
+  <p>FROM: ${from} → TO: ${to}</p>
+  <p>DATE: ${new Date().toDateString()}</p>
+  <br><button onclick="window.print()">DOWNLOAD / PRINT</button>
+  </body></html>`);
+});
+</script>
