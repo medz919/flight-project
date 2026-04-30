@@ -915,9 +915,85 @@ function setupAutocomplete(inputId, dropdownId) {
 setupAutocomplete('fromInput', 'fromDropdown');
 setupAutocomplete('toInput', 'toDropdown');
 </script>
-</body>
-</html>
+<!-- BOOKING MODAL -->
+<div id="bookingModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;overflow-y:auto">
+<div style="max-width:600px;margin:40px auto;background:#0f0f1a;border:1px solid #f5c518;padding:30px;border-radius:8px">
+<h2 style="color:#f5c518;font-family:monospace;margin-bottom:20px">✈ BOOK FLIGHT</h2>
+<div id="flightSummary" style="color:#f5c518;background:#1a1a2e;padding:15px;border-radius:5px;margin-bottom:20px"></div>
+
+<h3 style="color:#f5c518;font-family:monospace;margin-bottom:15px">PASSENGER INFORMATION</h3>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
+<div><label style="color:#aaa;font-size:12px">FIRST NAME</label><br>
+<input id="firstName" type="text" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+
+<div><label style="color:#aaa;font-size:12px">LAST NAME</label><br>
+<input id="lastName" type="text" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+
+<div><label style="color:#aaa;font-size:12px">GENDER</label><br>
+<select id="gender" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
+<option>Male</option><option>Female</option><option>Other</option></select></div>
+
+<div><label style="color:#aaa;font-size:12px">PASSENGER TYPE</label><br>
+<select id="paxType" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
+<option>Adult</option><option>Minor</option></select></div>
+
+<div><label style="color:#aaa;font-size:12px">DATE OF BIRTH</label><br>
+<input id="dob" type="date" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+
+<div><label style="color:#aaa;font-size:12px">PASSPORT NUMBER</label><br>
+<input id="passport" type="text" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+
+<div><label style="color:#aaa;font-size:12px">NATIONALITY</label><br>
+<input id="nationality" type="text" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+
+<div><label style="color:#aaa;font-size:12px">EMAIL</label><br>
+<input id="email" type="email" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+
+<div><label style="color:#aaa;font-size:12px">PHONE</label><br>
+<input id="phone" type="tel" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+</div>
+
+<h3 style="color:#f5c518;font-family:monospace;margin:20px 0 15px">FLIGHT PREFERENCES</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
+<div><label style="color:#aaa;font-size:12px">SEAT CLASS</label><br>
+<select id="seatClass" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
+<option>Economy</option><option>Business</option><option>First Class</option></select></div>
+
+<div><label style="color:#aaa;font-size:12px">SEAT PREFERENCE</label><br>
+<select id="seatPref" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
+<option>Window</option><option>Aisle</option><option>Middle</option></select></div>
+
+<div><label style="color:#aaa;font-size:12px">MEAL PREFERENCE</label><br>
+<select id="meal" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
+<option>Regular</option><option>Vegetarian</option><option>Halal</option><option>Kosher</option><option>Vegan</option></select></div>
+</div>
+
+<h3 style="color:#f5c518;font-family:monospace;margin:20px 0 15px">PAYMENT METHOD</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
+<div onclick="selectPayment(this,'Credit Card')" class="payBtn" style="border:1px solid #f5c518;padding:10px;text-align:center;cursor:pointer;color:#f5c518;border-radius:4px">💳 Credit Card</div>
+<div onclick="selectPayment(this,'PayPal')" class="payBtn" style="border:1px solid #f5c518;padding:10px;text-align:center;cursor:pointer;color:#f5c518;border-radius:4px">🅿 PayPal</div>
+<div onclick="selectPayment(this,'GCash')" class="payBtn" style="border:1px solid #f5c518;padding:10px;text-align:center;cursor:pointer;color:#f5c518;border-radius:4px">📱 GCash</div>
+</div>
+<input id="selectedPayment" type="hidden" value="Credit Card">
+
+<div style="display:flex;gap:10px;margin-top:10px">
+<button onclick="generateTicket()" style="flex:1;background:#f5c518;color:#000;border:none;padding:15px;font-weight:bold;cursor:pointer;border-radius:4px;font-size:16px">✈ GENERATE E-TICKET</button>
+<button onclick="document.getElementById('bookingModal').style.display='none'" style="background:#333;color:#fff;border:none;padding:15px;cursor:pointer;border-radius:4px">CANCEL</button>
+</div>
+</div>
+</div>
+
 <script>
+let selectedFlight = {};
+
+function selectPayment(el, method) {
+  document.querySelectorAll('.payBtn').forEach(b => b.style.background = 'transparent');
+  el.style.background = '#f5c518';
+  el.style.color = '#000';
+  document.getElementById('selectedPayment').value = method;
+}
+
 document.addEventListener('click', function(e) {
   const row = e.target.closest('.flight-row');
   if (!row) return;
@@ -926,16 +1002,47 @@ document.addEventListener('click', function(e) {
   const flight = row.querySelector('.flight-number')?.textContent;
   const from = cells[0]?.textContent;
   const to = cells[1]?.textContent;
-  const name = prompt('Enter passenger name:');
-  if (!name) return;
-  const w = window.open('');
-  w.document.write(`<html><body style="background:#000;color:#FFD700;font-family:monospace;padding:40px">
-  <h1>✈ BOARDING PASS</h1>
-  <p>PASSENGER: ${name}</p>
-  <p>FLIGHT: ${flight} | AIRLINE: ${airline}</p>
-  <p>FROM: ${from} → TO: ${to}</p>
-  <p>DATE: ${new Date().toDateString()}</p>
-  <br><button onclick="window.print()">DOWNLOAD / PRINT</button>
-  </body></html>`);
+  selectedFlight = { airline, flight, from, to };
+  document.getElementById('flightSummary').innerHTML = 
+    `<b>Flight:</b> ${flight} | <b>Airline:</b> ${airline}<br><b>Route:</b> ${from} ✈ ${to}`;
+  document.getElementById('bookingModal').style.display = 'block';
 });
+
+function generateTicket() {
+  const ref = 'BK' + Math.random().toString(36).substr(2,8).toUpperCase();
+  const w = window.open('');
+  w.document.write(`
+  <html><head><style>
+  body{background:#000;color:#FFD700;font-family:monospace;padding:40px;max-width:700px;margin:0 auto}
+  h1{font-size:28px;border-bottom:2px solid #FFD700;padding-bottom:10px}
+  .row{display:flex;justify-content:space-between;margin:10px 0;padding:8px 0;border-bottom:1px solid #333}
+  .label{color:#aaa;font-size:12px}
+  .val{color:#FFD700;font-weight:bold}
+  .route{font-size:36px;text-align:center;margin:20px 0}
+  .ref{background:#FFD700;color:#000;padding:15px;text-align:center;font-size:24px;font-weight:bold;margin:20px 0;border-radius:4px}
+  button{background:#FFD700;color:#000;border:none;padding:15px 30px;font-size:16px;cursor:pointer;margin-top:20px;font-weight:bold}
+  </style></head><body>
+  <h1>✈ BOARDING PASS / E-TICKET</h1>
+  <div class="route">${selectedFlight.from} ✈ ${selectedFlight.to}</div>
+  <div class="ref">BOOKING REF: ${ref}</div>
+  <div class="row"><span class="label">PASSENGER</span><span class="val">${document.getElementById('firstName').value} ${document.getElementById('lastName').value}</span></div>
+  <div class="row"><span class="label">GENDER</span><span class="val">${document.getElementById('gender').value}</span></div>
+  <div class="row"><span class="label">PASSENGER TYPE</span><span class="val">${document.getElementById('paxType').value}</span></div>
+  <div class="row"><span class="label">DATE OF BIRTH</span><span class="val">${document.getElementById('dob').value}</span></div>
+  <div class="row"><span class="label">PASSPORT</span><span class="val">${document.getElementById('passport').value}</span></div>
+  <div class="row"><span class="label">NATIONALITY</span><span class="val">${document.getElementById('nationality').value}</span></div>
+  <div class="row"><span class="label">EMAIL</span><span class="val">${document.getElementById('email').value}</span></div>
+  <div class="row"><span class="label">PHONE</span><span class="val">${document.getElementById('phone').value}</span></div>
+  <div class="row"><span class="label">FLIGHT</span><span class="val">${selectedFlight.flight} | ${selectedFlight.airline}</span></div>
+  <div class="row"><span class="label">SEAT CLASS</span><span class="val">${document.getElementById('seatClass').value}</span></div>
+  <div class="row"><span class="label">SEAT PREFERENCE</span><span class="val">${document.getElementById('seatPref').value}</span></div>
+  <div class="row"><span class="label">MEAL</span><span class="val">${document.getElementById('meal').value}</span></div>
+  <div class="row"><span class="label">PAYMENT</span><span class="val">${document.getElementById('selectedPayment').value}</span></div>
+  <div class="row"><span class="label">DATE ISSUED</span><span class="val">${new Date().toDateString()}</span></div>
+  <button onclick="window.print()">🖨 DOWNLOAD / PRINT TICKET</button>
+  </body></html>`);
+  document.getElementById('bookingModal').style.display = 'none';
+}
 </script>
+</body>
+</html>
