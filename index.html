@@ -970,12 +970,39 @@ setupAutocomplete('toInput', 'toDropdown');
 </div>
 
 <h3 style="color:#f5c518;font-family:monospace;margin:20px 0 15px">PAYMENT METHOD</h3>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:15px">
 <div onclick="selectPayment(this,'Credit Card')" class="payBtn" style="border:1px solid #f5c518;padding:10px;text-align:center;cursor:pointer;color:#f5c518;border-radius:4px">💳 Credit Card</div>
 <div onclick="selectPayment(this,'PayPal')" class="payBtn" style="border:1px solid #f5c518;padding:10px;text-align:center;cursor:pointer;color:#f5c518;border-radius:4px">🅿 PayPal</div>
 <div onclick="selectPayment(this,'GCash')" class="payBtn" style="border:1px solid #f5c518;padding:10px;text-align:center;cursor:pointer;color:#f5c518;border-radius:4px">📱 GCash</div>
 </div>
 <input id="selectedPayment" type="hidden" value="Credit Card">
+
+<!-- Credit Card Fields -->
+<div id="ccFields" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px">
+<div style="grid-column:1/-1"><label style="color:#aaa;font-size:12px">CARD NUMBER</label><br>
+<input id="ccNumber" type="text" maxlength="19" placeholder="1234 5678 9012 3456" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+<div><label style="color:#aaa;font-size:12px">CARDHOLDER NAME</label><br>
+<input id="ccName" type="text" placeholder="Name on card" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div><label style="color:#aaa;font-size:12px">EXPIRY (MM/YY)</label><br>
+<input id="ccExpiry" type="text" maxlength="5" placeholder="MM/YY" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+<div><label style="color:#aaa;font-size:12px">CVV</label><br>
+<input id="ccCvv" type="password" maxlength="4" placeholder="***" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+</div></div>
+
+<!-- PayPal Fields -->
+<div id="ppFields" style="display:none;margin-bottom:15px">
+<label style="color:#aaa;font-size:12px">PAYPAL EMAIL ADDRESS</label><br>
+<input id="ppEmail" type="email" placeholder="your@paypal.com" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
+</div>
+
+<!-- GCash Fields -->
+<div id="gcFields" style="display:none;margin-bottom:15px;display:grid;grid-template-columns:1fr 1fr;gap:15px">
+<div><label style="color:#aaa;font-size:12px">GCASH MOBILE NUMBER</label><br>
+<input id="gcNumber" type="tel" placeholder="09XX XXX XXXX" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+<div><label style="color:#aaa;font-size:12px">GCASH ACCOUNT NAME</label><br>
+<input id="gcName" type="text" placeholder="Account name" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
+</div>
 
 <div style="display:flex;gap:10px;margin-top:10px">
 <button onclick="generateTicket()" style="flex:1;background:#f5c518;color:#000;border:none;padding:15px;font-weight:bold;cursor:pointer;border-radius:4px;font-size:16px">✈ GENERATE E-TICKET</button>
@@ -988,10 +1015,13 @@ setupAutocomplete('toInput', 'toDropdown');
 let selectedFlight = {};
 
 function selectPayment(el, method) {
-  document.querySelectorAll('.payBtn').forEach(b => b.style.background = 'transparent');
+  document.querySelectorAll('.payBtn').forEach(b => { b.style.background = 'transparent'; b.style.color = '#f5c518'; });
   el.style.background = '#f5c518';
   el.style.color = '#000';
   document.getElementById('selectedPayment').value = method;
+  document.getElementById('ccFields').style.display = method === 'Credit Card' ? 'grid' : 'none';
+  document.getElementById('ppFields').style.display = method === 'PayPal' ? 'block' : 'none';
+  document.getElementById('gcFields').style.display = method === 'GCash' ? 'grid' : 'none';
 }
 
 document.addEventListener('click', function(e) {
