@@ -511,10 +511,47 @@
   </div>
 </header>
 
-<div class="search-form"><div class="search-form-row"><div class="search-form-group"><label>FROM</label><div class="autocomplete-wrapper">
+<div class="search-form">
+<!-- Trip Type Selector -->
+<div style="display:flex;gap:10px;margin-bottom:15px">
+<button onclick="setTripType('oneway',this)" id="btnOneway" style="background:#f5c518;color:#000;border:none;padding:8px 20px;cursor:pointer;border-radius:4px;font-weight:bold;font-family:monospace">ONE WAY</button>
+<button onclick="setTripType('roundtrip',this)" id="btnRoundtrip" style="background:transparent;color:#f5c518;border:1px solid #f5c518;padding:8px 20px;cursor:pointer;border-radius:4px;font-weight:bold;font-family:monospace">ROUND TRIP</button>
+<button onclick="setTripType('multicity',this)" id="btnMulticity" style="background:transparent;color:#f5c518;border:1px solid #f5c518;padding:8px 20px;cursor:pointer;border-radius:4px;font-weight:bold;font-family:monospace">MULTI-CITY</button>
+</div>
+<div class="search-form-row"><div class="search-form-group"><label>FROM</label><div class="autocomplete-wrapper">
   <input type="text" id="fromInput" placeholder="City or airport..." autocomplete="off" />
   <div class="autocomplete-dropdown" id="fromDropdown"></div>
-</div></div><div class="search-form-group"><label>TO</label><div class="autocomplete-wrapper"><input type="text" id="toInput" placeholder="City or airport..." autocomplete="off" /><div class="autocomplete-dropdown" id="toDropdown"></div></div></div><div class="search-form-group"><label>DATE</label><input type="date" id="dateInput" /></div><div class="search-form-group"><label>PASSENGERS</label><select id="passengersInput"><option value="1">1 Adult</option><option value="2">2 Adults</option><option value="3">3 Adults</option><option value="4">4 Adults</option></select></div><button id="searchFlightsBtn">SEARCH</button></div></div><div class="controls">
+</div></div><div class="search-form-group"><label>TO</label><div class="autocomplete-wrapper"><input type="text" id="toInput" placeholder="City or airport..." autocomplete="off" /><div class="autocomplete-dropdown" id="toDropdown"></div></div></div><div class="search-form-group"><label>DATE</label><input type="date" id="dateInput" /></div><div class="search-form-group"><label>PASSENGERS</label><select id="passengersInput"><option value="1">1 Adult</option><option value="2">2 Adults</option><option value="3">3 Adults</option><option value="4">4 Adults</option></select></div><button id="searchFlightsBtn">SEARCH</button></div></div><!-- Return Date Field -->
+<div id="returnDateGroup" style="display:none;margin-bottom:10px" class="search-form-row">
+<div class="search-form-group"><label>RETURN DATE</label>
+<input type="text" id="returnDateInput" placeholder="Return date..." class="search-form-group" style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:150px"/>
+</div></div>
+
+<!-- Multi City Fields -->
+<div id="multiCityGroup" style="display:none;margin-bottom:10px">
+<div class="search-form-row" style="margin-bottom:8px">
+<div class="search-form-group"><label>FLIGHT 2 FROM</label>
+<input type="text" id="mc2From" placeholder="City or airport..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
+</div>
+<div class="search-form-group"><label>FLIGHT 2 TO</label>
+<input type="text" id="mc2To" placeholder="City or airport..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
+</div>
+<div class="search-form-group"><label>DATE</label>
+<input type="text" id="mc2Date" placeholder="Date..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
+</div></div>
+<div class="search-form-row">
+<div class="search-form-group"><label>FLIGHT 3 FROM</label>
+<input type="text" id="mc3From" placeholder="City or airport..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
+</div>
+<div class="search-form-group"><label>FLIGHT 3 TO</label>
+<input type="text" id="mc3To" placeholder="City or airport..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
+</div>
+<div class="search-form-group"><label>DATE</label>
+<input type="text" id="mc3Date" placeholder="Date..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
+</div></div>
+</div>
+
+<div class="controls">
   <button class="filter-btn active" data-filter="all">All</button>
   <button class="filter-btn" data-filter="scheduled">Scheduled</button>
   <button class="filter-btn" data-filter="active">In Air</button>
@@ -1013,6 +1050,18 @@ setupAutocomplete('toInput', 'toDropdown');
 
 <script>
 let selectedFlight = {};
+
+function setTripType(type, btn) {
+  document.querySelectorAll('#btnOneway,#btnRoundtrip,#btnMulticity').forEach(b => {
+    b.style.background = 'transparent'; b.style.color = '#f5c518';
+  });
+  btn.style.background = '#f5c518';
+  btn.style.color = '#000';
+  document.getElementById('returnDateGroup').style.display = type === 'roundtrip' ? 'flex' : 'none';
+  document.getElementById('multiCityGroup').style.display = type === 'multicity' ? 'block' : 'none';
+  window.tripType = type;
+}
+window.tripType = 'oneway';
 
 function selectPayment(el, method) {
   document.querySelectorAll('.payBtn').forEach(b => { b.style.background = 'transparent'; b.style.color = '#f5c518'; });
