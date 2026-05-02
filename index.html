@@ -662,7 +662,29 @@
           <div class="cell">
             <span class="status ${sClass}">${status.toUpperCase()}</span>
           </div>
-        </div>`;
+          <div class="cell">
+            <div class="time-val" style="color:#f5c518">${(() => {
+              const segs = f.slices?.[0]?.segments || [];
+              const stops = segs.length - 1;
+              const dep = segs[0]?.departing_at;
+              const arr = segs[segs.length-1]?.arriving_at;
+              if(dep && arr) {
+                const mins = Math.round((new Date(arr) - new Date(dep)) / 60000);
+                const h = Math.floor(mins/60), m = mins%60;
+                return h + 'h ' + m + 'm';
+              }
+              return '--';
+            })()}</div>
+            <div class="time-label">${(() => {
+              const stops = (f.slices?.[0]?.segments?.length || 1) - 1;
+              return stops === 0 ? 'direct' : stops + ' stop' + (stops > 1 ? 's' : '');
+            })()}</div>
+          </div>
+          <div class="cell">
+            <div class="time-val" style="color:#00e676">${f.total_amount ? parseFloat(f.total_amount).toFixed(0) + ' ' + (f.total_currency || '') : '--'}</div>
+            <div class="time-label">price</div>
+          </div>
+        </div>\`;
     }).join('');
   }
 
