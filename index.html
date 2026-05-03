@@ -639,7 +639,7 @@
       const delay   = parseInt(dep.delay) > 0 ? "style='animation-delay:" + (i * 0.04) + "s'" : "style='animation-delay:" + (i * 0.04) + "s'";
 
       return 
-        <div class="flight-row" ${delay}>
+        <div class="flight-row" " + delay + ">
           <div class="cell">
             <div class="flight-number">${flight.iata || flight.icao || '—'}</div>
           </div>
