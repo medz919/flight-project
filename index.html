@@ -625,7 +625,7 @@
   function renderFlights(flights) {
     const board = document.getElementById('flightBoard');
     if (!flights.length) {
-      board.innerHTML = `<div class="state-message"><span class="big">NO DATA</span>No flights match this filter.</div>`;
+      board.innerHTML = '<div class="state-message"><span class="big">NO DATA</span>No flights match this filter.</div>';
       return;
     }
 
@@ -636,9 +636,9 @@
       const flight  = f.flight  || {};
       const status  = f.flight_status || 'unknown';
       const sClass  = statusClass(status);
-      const delay   = parseInt(dep.delay) > 0 ? `style="animation-delay:${i * 0.04}s"` : `style="animation-delay:${i * 0.04}s"`;
+      const delay   = parseInt(dep.delay) > 0 ? "style='animation-delay:" + (i * 0.04) + "s'" : "style='animation-delay:" + (i * 0.04) + "s'";
 
-      return `
+      return 
         <div class="flight-row" ${delay}>
           <div class="cell">
             <div class="flight-number">${flight.iata || flight.icao || '—'}</div>
@@ -657,7 +657,7 @@
           </div>
           <div class="cell cell-scheduled">
             <div class="time-val">${formatTime(dep.scheduled)}</div>
-            <div class="time-label">${dep.delay ? `+${dep.delay}min delay` : 'on time'}</div>
+            <div class="time-label">" + (dep.delay ? "+" + dep.delay + "min delay" : "on time") + "</div>
           </div>
           <div class="cell">
             <span class="status ${sClass}">${status.toUpperCase()}</span>
@@ -764,7 +764,7 @@ document.getElementById('searchClear').addEventListener('click', function() {
   // ── Fetch ──
   async function loadFlights(origin, destination, date, passengers) {
     const board = document.getElementById('flightBoard');
-    board.innerHTML = `<div class="state-message"><span class="big">LOADING</span>Fetching live data...</div>`;
+    board.innerHTML = '<div class="state-message"><span class="big">LOADING</span>Fetching live data...</div>';
 
     try {
         const res = await fetch('https://flight-project-production-7ab7.up.railway.app/flights/search', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({origin: origin, destination: destination, date: date, adults: parseInt(passengers)||1})});
@@ -794,13 +794,13 @@ document.getElementById('searchClear').addEventListener('click', function() {
   });
 
       if (!allFlights.length) {
-        board.innerHTML = `<div class="state-message"><span class="big">EMPTY</span>No flight data returned.</div>`;
+        board.innerHTML = '<div class="state-message"><span class="big">EMPTY</span>No flight data returned.</div>';
         return;
       }
 
       applyFilter(activeFilter);
     } catch (err) {
-      board.innerHTML = `<div class="state-message"><span class="big">ERROR</span>Could not connect to server. Is it running on port 3001?</div>`;
+      board.innerHTML = '<div class="state-message"><span class="big">ERROR</span>Could not connect to server. Is it running on port 3001?</div>';
     }
   }
 
@@ -1112,7 +1112,7 @@ document.addEventListener('click', function(e) {
 function generateTicket() {
   const ref = 'BK' + Math.random().toString(36).substr(2,8).toUpperCase();
   const w = window.open('');
-  w.document.write(`
+  w.document.write(
   <html><head><style>
   body{background:#000;color:#FFD700;font-family:monospace;padding:40px;max-width:700px;margin:0 auto}
   h1{font-size:28px;border-bottom:2px solid #FFD700;padding-bottom:10px}
@@ -1141,7 +1141,7 @@ function generateTicket() {
   <div class="row"><span class="label">PAYMENT</span><span class="val">${document.getElementById('selectedPayment').value}</span></div>
   <div class="row"><span class="label">DATE ISSUED</span><span class="val">${new Date().toDateString()}</span></div>
   <button onclick="window.print()">🖨 DOWNLOAD / PRINT TICKET</button>
-  </body></html>`);
+  </body></html>");
   document.getElementById('bookingModal').style.display = 'none';
 }
 </script>
