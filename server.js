@@ -46,7 +46,7 @@ app.post('/flights/search', async (req, res) => {
 const offerId = offerRequest.data.data.id;
 
     const offers = await axios.get(
-      `https://api.duffel.com/air/offers?offer_request_id=${offerId}&limit=50`,
+      'https://api.duffel.com/air/offers?offer_request_id=' + offerId + '&limit=50',
       { headers: duffelHeaders }
     );
 
@@ -86,5 +86,5 @@ app.post('/flights/book', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log('Server running on http://localhost:' + PORT);
 });
