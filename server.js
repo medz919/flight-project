@@ -12,7 +12,7 @@ app.use(express.static(__dirname));
 const PORT = process.env.PORT || 3001;
 
 const duffelHeaders = {
-  'Authorization': `Bearer ${process.env.DUFFEL_API_KEY}`,
+  'Authorization': 'Bearer ' + process.env.DUFFEL_API_KEY,
   'Duffel-Version': 'v2',
   'Content-Type': 'application/json'
 };
