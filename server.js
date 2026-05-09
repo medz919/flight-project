@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const PORT = process.env.PORT || 3001;
+const PORT = 3001;
 
 const duffelHeaders = {
   'Authorization': `Bearer ${process.env.DUFFEL_API_KEY}`,
@@ -17,9 +17,9 @@ const duffelHeaders = {
   'Content-Type': 'application/json'
 };
 
-// HOME ROUTE
+// TEST ROUTE
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.send('Flight API is working');
 });
 
 // SEARCH FLIGHTS
@@ -83,8 +83,10 @@ app.post('/flights/book', async (req, res) => {
   }
 
 
+});app.get("/", (req, res) => {
+  res.send("Flight API is running");
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("Server running on port " + PORT);
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
