@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const duffelHeaders = {
   'Authorization': `Bearer ${process.env.DUFFEL_API_KEY}`,
