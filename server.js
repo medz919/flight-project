@@ -17,9 +17,9 @@ const duffelHeaders = {
   'Content-Type': 'application/json'
 };
 
-// TEST ROUTE
+// HOME ROUTE
 app.get('/', (req, res) => {
-  res.send('Flight API is working');
+  res.sendFile(__dirname + '/index.html');
 });
 
 // SEARCH FLIGHTS
