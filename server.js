@@ -82,11 +82,12 @@ app.post('/flights/book', async (req, res) => {
     res.status(500).json({ error: 'Failed to book flight' });
   }
 
+});
 
-});app.get("/", (req, res) => {
+app.get("/", (req, res) => {
   res.send("Flight API is running");
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(Server running on http://localhost:${PORT});
 });
