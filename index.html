@@ -1,1147 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Flight Departures</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #0a0a0f;
-      --board: #0f0f1a;
-      --row: #13131f;
-      --row-alt: #0f0f18;
-      --accent: #f5c518;
-      --green: #00e676;
-      --red: #ff1744;
-      --orange: #ff9100;
-      --text: #e8e8f0;
-      --dim: #5a5a7a;
-      --border: #1e1e35;
-      --font-mono: 'Share Tech Mono', monospace;
-      --font-display: 'Bebas Neue', sans-serif;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-mono);
-      min-height: 100vh;
-      padding: 0;
-    }
-
-    /* ── Header ── */
-    header {
-      background: var(--board);
-      border-bottom: 2px solid var(--accent);
-      padding: 18px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .logo {
-      font-family: var(--font-display);
-      font-size: 2.2rem;
-      color: var(--accent);
-      letter-spacing: 3px;
-      line-height: 1;
-    }
-
-    .tagline {
-      font-size: 0.7rem;
-      color: var(--dim);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .clock {
-      font-size: 1.6rem;
-      color: var(--accent);
-      letter-spacing: 4px;
-    }
-
-    .clock-label {
-      font-size: 0.6rem;
-      color: var(--dim);
-      letter-spacing: 2px;
-      text-align: right;
-    }
-
-    /* ── Controls ── */
-    .controls {
-      padding: 16px 32px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      background: var(--board);
-      border: 1px solid var(--border);
-      color: var(--dim);
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      padding: 6px 14px;
-      cursor: pointer;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: all 0.15s;
-    }
-
-    .filter-btn:hover, .filter-btn.active {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .refresh-btn {
-      margin-left: auto;
-      background: transparent;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      padding: 6px 16px;
-      cursor: pointer;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      transition: all 0.2s;
-    }
-
-    .refresh-btn:hover {
-      background: var(--accent);
-      color: var(--bg);
-    }
-
-    /* ── Board ── */
-    .board-container {
-      padding: 24px 32px;
-    }
-
-    /* Column headers */
-    .board-header {
-      display: grid;
-      grid-template-columns: 80px 140px 1fr 1fr 120px 160px 120px;
-      gap: 0;
-      padding: 8px 16px;
-      background: #0c0c15;
-      border: 1px solid var(--border);
-      border-bottom: 2px solid var(--accent);
-      margin-bottom: 2px;
-    }
-
-    .col-label {
-      font-size: 0.6rem;
-      color: var(--accent);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    /* Flight rows */
-    .flight-row {
-      display: grid;
-      grid-template-columns: 80px 140px 1fr 1fr 160px 120px;
-      gap: 0;
-      padding: 13px 16px;
-      border: 1px solid var(--border);
-      border-top: none;
-      background: var(--row);
-      transition: background 0.2s;
-      animation: rowIn 0.4s ease both;
-      cursor: default;
-    }
-
-    .flight-row:nth-child(even) { background: var(--row-alt); }
-    .flight-row:hover { background: #1a1a2e; }
-
-    @keyframes rowIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .cell {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding-right: 12px;
-    }
-
-    .flight-number {
-      font-size: 1rem;
-      color: var(--accent);
-      letter-spacing: 2px;
-    }
-
-    .airline-name {
-      font-size: 0.75rem;
-      color: var(--text);
-      letter-spacing: 1px;
-    }
-
-    .airline-iata {
-      font-size: 0.6rem;
-      color: var(--dim);
-      margin-top: 2px;
-    }
-
-    .airport-code {
-      font-size: 1.1rem;
-      letter-spacing: 3px;
-      color: var(--text);
-    }
-
-    .airport-name {
-      font-size: 0.6rem;
-      color: var(--dim);
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 160px;
-    }
-
-    .time-val {
-      font-size: 1rem;
-      letter-spacing: 2px;
-      color: var(--text);
-    }
-
-    .time-label {
-      font-size: 0.6rem;
-      color: var(--dim);
-      margin-top: 2px;
-      letter-spacing: 1px;
-    }
-
-    /* Status badge */
-    .status {
-      display: inline-block;
-      font-size: 0.65rem;
-      letter-spacing: 2px;
-      padding: 4px 8px;
-      text-transform: uppercase;
-      font-weight: bold;
-      border: 1px solid;
-      width: fit-content;
-    }
-
-    .status-scheduled  { color: #64b5f6; border-color: #64b5f620; background: #64b5f608; }
-    .status-active     { color: var(--green); border-color: #00e67620; background: #00e67608; animation: pulse 2s infinite; }
-    .status-landed     { color: var(--green); border-color: #00e67620; background: #00e67608; }
-    .status-cancelled  { color: var(--red); border-color: #ff174420; background: #ff174408; }
-    .status-delayed    { color: var(--orange); border-color: #ff910020; background: #ff910008; }
-    .status-unknown    { color: var(--dim); border-color: #5a5a7a20; }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-
-    /* ── Loading / Error ── */
-    .state-message {
-      text-align: center;
-      padding: 60px 32px;
-      color: var(--dim);
-      letter-spacing: 3px;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-    }
-
-    .state-message .big {
-      font-family: var(--font-display);
-      font-size: 3rem;
-      color: var(--border);
-      display: block;
-      margin-bottom: 12px;
-      letter-spacing: 6px;
-    }
-
-    /* Scanline overlay */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.03) 2px,
-        rgba(0,0,0,0.03) 4px
-      );
-      pointer-events: none;
-      z-index: 9999;
-    }
-
-    .count-badge {
-      font-size: 0.7rem;
-      color: var(--dim);
-      letter-spacing: 2px;
-      margin-left: 4px;
-    }
-
-    /* ── Search ── */
-    .search-wrap {
-      padding: 12px 32px;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .search-input {
-      flex: 1;
-      background: var(--board);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      padding: 9px 16px;
-      letter-spacing: 2px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .search-input::placeholder {
-      color: var(--dim);
-      letter-spacing: 2px;
-    }
-
-    .search-input:focus {
-      border-color: var(--accent);
-    }
-
-    .search-clear {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--dim);
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      padding: 9px 14px;
-      cursor: pointer;
-      letter-spacing: 1px;
-      transition: all 0.15s;
-    }
-
-    .search-clear:hover {
-      border-color: var(--red);
-      color: var(--red);
-    }
-
-    .search-count {
-      font-size: 0.7rem;
-      color: var(--dim);
-      letter-spacing: 2px;
-      white-space: nowrap;
-    }
-
-    @media (max-width: 768px) {
-      .board-header,
-      .flight-row {
-        grid-template-columns: 90px 1fr 1fr 100px;
-      }
-      .col-airline, .cell-airline,
-      .col-scheduled, .cell-scheduled { display: none; }
-      header { padding: 12px 16px; }
-      .board-container { padding: 12px 16px; }
-      .controls { padding: 10px 16px; }
-    }
-  
-.autocomplete-wrapper {
-  position: relative;
-  width: 100%;
-}
-.autocomplete-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #1a1a2e;
-  border: 1px solid #c9a84c;
-  border-top: none;
-  max-height: 250px;
-  overflow-y: auto;
-  z-index: 1000;
-  display: none;
-}
-.autocomplete-item {
-  padding: 10px 14px;
-  cursor: pointer;
-  color: #fff;
-  font-size: 13px;
-  border-bottom: 1px solid rgba(201,168,76,0.1);
-}
-.autocomplete-item:hover {
-  background: rgba(201,168,76,0.2);
-}
-.autocomplete-item .iata {
-  font-weight: bold;
-  color: #c9a84c;
-  margin-right: 8px;
-}
-.autocomplete-item .city {
-  color: #aaa;
-  font-size: 11px;
-}
-
-@media (max-width: 768px) {
-  /* Search form stacks vertically */
-  .search-form-row {
-    flex-direction: column !important;
-    gap: 10px !important;
-  }
-  .search-form-group {
-    width: 100% !important;
-  }
-  /* Search button full width */
-  #searchFlightsBtn {
-    width: 100% !important;
-    padding: 12px !important;
-    font-size: 16px !important;
-  }
-  /* Header smaller */
-  header h1, .departures-title {
-    font-size: 24px !important;
-  }
-  /* Hide VIA and SCHEDULED columns on mobile */
-  .col-via, .cell-via,
-  .col-scheduled, .cell-scheduled {
-    display: none !important;
-  }
-  /* Flight rows smaller */
-  .flight-row, .board-header {
-    grid-template-columns: 60px 1fr 1fr !important;
-    font-size: 12px !important;
-  }
-  /* Status badge smaller */
-  .status-badge {
-    font-size: 10px !important;
-    padding: 3px 6px !important;
-  }
-  /* Filters wrap */
-  .filters {
-    flex-wrap: wrap !important;
-    gap: 6px !important;
-  }
-  .filter-btn {
-    font-size: 11px !important;
-    padding: 4px 10px !important;
-  }
-  /* Clock smaller */
-  .clock {
-    font-size: 16px !important;
-  }
-  /* Passengers dropdown full width */
-  #passengersInput {
-    width: 100% !important;
-  }
-  /* Date input full width */
-  #dateInput {
-    width: 100% !important;
-  }
-  /* Controls padding */
-  .controls {
-    padding: 8px 12px !important;
-  }
-  /* Board container */
-  .board-container {
-    padding: 8px 12px !important;
-  }
-  /* Autocomplete dropdown */
-  .autocomplete-dropdown {
-    font-size: 12px !important;
-  }
-  .autocomplete-item {
-    padding: 8px 10px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  /* Extra small phones */
-  .flight-number {
-    font-size: 11px !important;
-  }
-  header {
-    padding: 10px 12px !important;
-  }
-  .col-airline, .cell-airline {
-    display: none !important;
-  }
-  .flight-row, .board-header {
-    grid-template-columns: 55px 1fr 80px !important;
-  }
-}
-</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flight Departures</title>
 <style>
-.search-form { background: #0f0f1a; padding: 20px 32px; border-bottom: 1px solid #1e1e35; }
-.search-form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-.search-form-group { display: flex; flex-direction: column; gap: 6px; }
-.search-form-group label { font-size: 0.6rem; color: #f5c518; letter-spacing: 2px; font-family: 'Share Tech Mono', monospace; }
-.search-form-group input, .search-form-group select { background: #13131f; border: 1px solid #1e1e35; color: #e8e8f0; padding: 8px 12px; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; outline: none; text-transform: uppercase; min-width: 100px; }
-.search-form-group input:focus, .search-form-group select:focus { border-color: #f5c518; }
-#searchFlightsBtn { background: #f5c518; color: #0a0a0f; border: none; padding: 8px 24px; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; letter-spacing: 2px; cursor: pointer; font-weight: bold; height: 36px; }
-#searchFlightsBtn:hover { background: #fff; }
-</style></head>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0a; color: #fff; font-family: monospace; }
+header { padding: 20px 40px; border-bottom: 1px solid #FFD700; display: flex; justify-content: space-between; align-items: center; }
+.logo { color: #FFD700; font-size: 24px; font-weight: bold; }
+.clock { color: #FFD700; font-size: 14px; }
+.search-bar { padding: 20px 40px; background: #111; }
+.search-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+label { font-size: 10px; color: #888; text-transform: uppercase; }
+input, select { background: #222; border: 1px solid #444; color: #fff; padding: 8px 12px; font-family: monospace; font-size: 14px; width: 120px; }
+.search-btn { background: #FFD700; color: #000; border: none; padding: 9px 24px; font-weight: bold; font-family: monospace; cursor: pointer; font-size: 14px; }
+.search-btn:hover { background: #ffea00; }
+.results { padding: 20px 40px; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 8px 12px; font-size: 11px; color: #888; border-bottom: 1px solid #FFD700; }
+td { padding: 10px 12px; border-bottom: 1px solid #222; font-size: 13px; cursor: pointer; }
+tr:hover td { background: #1a1a1a; }
+.price { color: #FFD700; font-weight: bold; }
+.status { padding: 3px 8px; font-size: 11px; border-radius: 2px; }
+.scheduled { background: #1a3a1a; color: #4CAF50; }
+.msg { padding: 40px; text-align: center; color: #555; font-size: 14px; }
+
+/* Modal */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; overflow-y: auto; }
+.modal-box { background: #111; border: 1px solid #FFD700; max-width: 500px; margin: 40px auto; padding: 30px; }
+.modal-title { color: #FFD700; font-size: 18px; margin-bottom: 20px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 11px; color: #888; margin-bottom: 4px; }
+.form-group input, .form-group select { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 8px; font-family: monospace; }
+.book-btn { background: #FFD700; color: #000; border: none; padding: 12px 30px; font-weight: bold; font-family: monospace; cursor: pointer; width: 100%; margin-top: 10px; font-size: 14px; }
+.close-btn { float: right; background: none; border: none; color: #888; cursor: pointer; font-size: 18px; }
+.flight-summary { background: #1a1a1a; padding: 15px; margin-bottom: 20px; font-size: 13px; line-height: 1.8; }
+</style>
+</head>
 <body>
 
 <header>
-  <div class="header-left">
-    <div>
-      <div class="logo">✈ DEPARTURES</div>
-      <div class="tagline">Live Flight Board</div>
-    </div>
-  </div>
-  <div style="text-align:right">
-    <div class="clock" id="clock">--:--:--</div>
-    <div class="clock-label">LOCAL TIME</div>
-  </div>
+  <div class="logo">✈ DEPARTURES <span style="font-size:12px;color:#888">LIVE FLIGHT BOARD</span></div>
+  <div class="clock" id="clock"></div>
 </header>
 
-<div class="search-form">
-<!-- Trip Type Selector -->
-<div style="display:flex;gap:10px;margin-bottom:15px">
-<button onclick="setTripType('oneway',this)" id="btnOneway" style="background:#f5c518;color:#000;border:none;padding:8px 20px;cursor:pointer;border-radius:4px;font-weight:bold;font-family:monospace">ONE WAY</button>
-<button onclick="setTripType('roundtrip',this)" id="btnRoundtrip" style="background:transparent;color:#f5c518;border:1px solid #f5c518;padding:8px 20px;cursor:pointer;border-radius:4px;font-weight:bold;font-family:monospace">ROUND TRIP</button>
-<button onclick="setTripType('multicity',this)" id="btnMulticity" style="background:transparent;color:#f5c518;border:1px solid #f5c518;padding:8px 20px;cursor:pointer;border-radius:4px;font-weight:bold;font-family:monospace">MULTI-CITY</button>
-</div>
-<div class="search-form-row"><div class="search-form-group"><label>FROM</label><div class="autocomplete-wrapper">
-  <input type="text" id="fromInput" placeholder="City or airport..." autocomplete="off" />
-  <div class="autocomplete-dropdown" id="fromDropdown"></div>
-</div></div><div class="search-form-group"><label>TO</label><div class="autocomplete-wrapper"><input type="text" id="toInput" placeholder="City or airport..." autocomplete="off" /><div class="autocomplete-dropdown" id="toDropdown"></div></div></div><div class="search-form-group"><label>DATE</label><input type="date" id="dateInput" /></div><div class="search-form-group"><label>PASSENGERS</label><select id="passengersInput"><option value="1">1 Adult</option><option value="2">2 Adults</option><option value="3">3 Adults</option><option value="4">4 Adults</option></select></div><button id="searchFlightsBtn">SEARCH</button></div></div><!-- Return Date Field -->
-<div id="returnDateGroup" style="display:none;margin-bottom:10px" class="search-form-row">
-<div class="search-form-group"><label>RETURN DATE</label>
-<input type="text" id="returnDateInput" placeholder="Return date..." class="search-form-group" style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:150px"/>
-</div></div>
-
-<!-- Multi City Fields -->
-<div id="multiCityGroup" style="display:none;margin-bottom:10px">
-<div class="search-form-row" style="margin-bottom:8px">
-<div class="search-form-group"><label>FLIGHT 2 FROM</label>
-<input type="text" id="mc2From" placeholder="City or airport..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
-</div>
-<div class="search-form-group"><label>FLIGHT 2 TO</label>
-<input type="text" id="mc2To" placeholder="City or airport..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
-</div>
-<div class="search-form-group"><label>DATE</label>
-<input type="text" id="mc2Date" placeholder="Date..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
-</div></div>
-<div class="search-form-row">
-<div class="search-form-group"><label>FLIGHT 3 FROM</label>
-<input type="text" id="mc3From" placeholder="City or airport..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
-</div>
-<div class="search-form-group"><label>FLIGHT 3 TO</label>
-<input type="text" id="mc3To" placeholder="City or airport..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
-</div>
-<div class="search-form-group"><label>DATE</label>
-<input type="text" id="mc3Date" placeholder="Date..." style="background:#13131f;border:1px solid #1e1e35;color:#e8e8f0;padding:8px 12px;font-family:monospace;min-width:100px"/>
-</div></div>
-</div>
-
-<div class="controls">
-  <button class="filter-btn active" data-filter="all">All</button>
-  <button class="filter-btn" data-filter="scheduled">Scheduled</button>
-  <button class="filter-btn" data-filter="active">In Air</button>
-  <button class="filter-btn" data-filter="landed">Landed</button>
-  <button class="filter-btn" data-filter="cancelled">Cancelled</button>
-  <button class="filter-btn" data-filter="delayed">Delayed</button>
-  <button class="refresh-btn" id="refreshBtn">↻ Refresh</button>
-</div>
-
-<div class="search-wrap">
-  <input class="search-input" id="searchInput" type="text" placeholder="SEARCH FLIGHT, AIRLINE, AIRPORT..." autocomplete="off" spellcheck="false" />
-  <button class="search-clear" id="searchClear">✕ CLEAR</button>
-  <span class="search-count" id="searchCount"></span>
-</div>
-
-<div class="board-container">
-  <div class="board-header">
-    <div class="col-label">Flight</div>
-    <div class="col-label col-airline">Airline</div>
-    <div class="col-label">From</div>
-    <div class="col-label">To</div>
-    <div class="col-label">Via</div><div class="col-label col-scheduled">Scheduled</div>
-    <div class="col-label">Status</div>
+<div class="search-bar">
+  <div class="search-row">
+    <div class="field"><label>From</label><input id="from" value="MNL" maxlength="3" style="text-transform:uppercase"></div>
+    <div class="field"><label>To</label><input id="to" value="SIN" maxlength="3" style="text-transform:uppercase"></div>
+    <div class="field"><label>Date</label><input id="date" type="date"></div>
+    <div class="field"><label>Passengers</label><select id="passengers"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+    <button class="search-btn" onclick="searchFlights()">SEARCH</button>
   </div>
-  <div id="flightBoard">
-    <div class="state-message">
-      <span class="big">LOADING</span>
-      Fetching live flight data...
-    </div>
+</div>
+
+<div class="results">
+  <table>
+    <thead><tr>
+      <th>FLIGHT</th><th>AIRLINE</th><th>FROM</th><th>TO</th><th>DEPARTS</th><th>ARRIVES</th><th>PRICE</th><th>STATUS</th>
+    </tr></thead>
+    <tbody id="flightTable"><tr><td colspan="8" class="msg">Enter your route and click SEARCH</td></tr></tbody>
+  </table>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal" id="bookingModal">
+  <div class="modal-box">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div class="modal-title">BOOK FLIGHT</div>
+    <div class="flight-summary" id="flightSummary"></div>
+    <div class="form-group"><label>First Name</label><input id="firstName" placeholder="Juan"></div>
+    <div class="form-group"><label>Last Name</label><input id="lastName" placeholder="dela Cruz"></div>
+    <div class="form-group"><label>Email</label><input id="email" type="email" placeholder="juan@email.com"></div>
+    <div class="form-group"><label>Date of Birth</label><input id="dob" type="date"></div>
+    <div class="form-group"><label>Gender</label><select id="gender"><option value="m">Male</option><option value="f">Female</option></select></div>
+    <button class="book-btn" onclick="bookFlight()">CONFIRM BOOKING</button>
   </div>
 </div>
 
 <script>
-  // ── Clock ──
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').textContent =
-      now.toLocaleTimeString('en-US', { hour12: false });
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
+let selectedOffer = null;
 
-  // ── Helpers ──
-  function statusClass(status) {
-    if (!status) return 'status-unknown';
-    const s = status.toLowerCase();
-    if (s.includes('cancel')) return 'status-cancelled';
-    if (s.includes('delay'))  return 'status-delayed';
-    if (s.includes('active') || s.includes('air')) return 'status-active';
-    if (s.includes('land'))   return 'status-landed';
-    if (s.includes('sched'))  return 'status-scheduled';
-    return 'status-unknown';
-  }
+// Clock
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-  function formatTime(str) {
-    if (!str) return '--:--';
-    try {
-      return new Date(str).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-    } catch { return '--:--'; }
-  }
+// Set default date to tomorrow
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+document.getElementById('date').value = tomorrow.toISOString().split('T')[0];
 
-  function short(str, len = 18) {
-    if (!str) return '—';
-    return str.length > len ? str.slice(0, len) + '…' : str;
-  }
+async function searchFlights() {
+  const from = document.getElementById('from').value.toUpperCase();
+  const to = document.getElementById('to').value.toUpperCase();
+  const date = document.getElementById('date').value;
+  const passengers = parseInt(document.getElementById('passengers').value);
 
-  // ── Render ──
-  let allFlights = [];
-  let activeFilter = 'all';
+  document.getElementById('flightTable').innerHTML = '<tr><td colspan="8" class="msg">LOADING... Fetching live flight data</td></tr>';
 
-  function renderFlights(flights) {
-    const board = document.getElementById('flightBoard');
-    if (!flights.length) {
-      board.innerHTML = '<div class="state-message"><span class="big">NO DATA</span>No flights match this filter.</div>';
+  try {
+    const res = await fetch('/flights/search', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ origin: from, destination: to, date, adults: passengers })
+    });
+    const data = await res.json();
+
+    if (!data.data || data.data.length === 0) {
+      document.getElementById('flightTable').innerHTML = '<tr><td colspan="8" class="msg">No flights found</td></tr>';
       return;
     }
 
-    board.innerHTML = flights.map((f, i) => {
-      const dep = f.departure || {};
-      const arr = f.arrival   || {};
-      const airline = f.airline || {};
-      const flight  = f.flight  || {};
-      const status  = f.flight_status || 'unknown';
-      const sClass  = statusClass(status);
-      const delay   = parseInt(dep.delay) > 0 ? "style='animation-delay:" + (i * 0.04) + "s'" : "style='animation-delay:" + (i * 0.04) + "s'";
+    const rows = data.data.slice(0, 20).map(offer => {
+      const slice = offer.slices[0];
+      const seg = slice.segments[0];
+      const dep = new Date(seg.departing_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      const arr = new Date(seg.arriving_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      const price = parseFloat(offer.total_amount).toFixed(2);
+      const currency = offer.total_currency;
+      const airline = seg.operating_carrier.name;
+      const flightNum = seg.operating_carrier_flight_number;
 
-      return 
-        <div class="flight-row" " + delay + ">
-          <div class="cell">
-            <div class="flight-number">${flight.iata || flight.icao || '—'}</div>
-          </div>
-          <div class="cell cell-airline">
-            <div class="airline-name">${short(airline.name || '—', 16)}</div>
-            <div class="airline-iata">${airline.iata || ''}</div>
-          </div>
-          <div class="cell">
-            <div class="airport-code">${dep.iata || '—'}</div>
-            <div class="airport-name">${short(dep.airport || '', 22)}</div>
-          </div>
-          <div class="cell">
-            <div class="airport-code">${arr.iata || '—'}</div>
-            <div class="airport-name">${short(arr.airport || '', 22)}</div>
-          </div>
-          <div class="cell cell-scheduled">
-            <div class="time-val">${formatTime(dep.scheduled)}</div>
-            <div class="time-label">" + (dep.delay ? "+" + dep.delay + "min delay" : "on time") + "</div>
-          </div>
-          <div class="cell">
-            <span class="status ${sClass}">${status.toUpperCase()}</span>
-          </div>
-          <div class="cell">
-            <div class="time-val" style="color:#f5c518">${(() => {
-              const segs = f.slices?.[0]?.segments || [];
-              const stops = segs.length - 1;
-              const dep = segs[0]?.departing_at;
-              const arr = segs[segs.length-1]?.arriving_at;
-              if(dep && arr) {
-                const mins = Math.round((new Date(arr) - new Date(dep)) / 60000);
-                const h = Math.floor(mins/60), m = mins%60;
-                return h + 'h ' + m + 'm';
-              }
-              return '--';
-            })()}</div>
-            <div class="time-label">${(() => {
-              const stops = (f.slices?.[0]?.segments?.length || 1) - 1;
-              return stops === 0 ? 'direct' : stops + ' stop' + (stops > 1 ? 's' : '');
-            })()}</div>
-          </div>
-          <div class="cell">
-            <div class="time-val" style="color:#00e676">${f.total_amount ? parseFloat(f.total_amount).toFixed(0) + ' ' + (f.total_currency || '') : '--'}</div>
-            <div class="time-label">price</div>
-          </div>
-        </div>\`;
+      return `<tr onclick="selectFlight('${offer.id}', '${from}', '${to}', '${airline}', '${price}', '${currency}', '${dep}', '${arr}')">
+        <td>${flightNum || '-'}</td>
+        <td>${airline}</td>
+        <td>${from}</td>
+        <td>${to}</td>
+        <td>${dep}</td>
+        <td>${arr}</td>
+        <td class="price">${currency} ${price}</td>
+        <td><span class="status scheduled">SCHEDULED</span></td>
+      </tr>`;
     }).join('');
+
+    document.getElementById('flightTable').innerHTML = rows;
+  } catch (err) {
+    document.getElementById('flightTable').innerHTML = '<tr><td colspan="8" class="msg">Error connecting to server</td></tr>';
   }
-
-  // ── Search ──
-  let searchQuery = '';
-document.getElementById('searchInput').addEventListener('input', function() {
-  searchQuery = this.value.toLowerCase().trim();
-  document.getElementById('searchClear').style.display = searchQuery ? 'block' : 'none';
-  const filtered = getFilteredFlights();
-  updateSearchCount(filtered.length);
-  renderFlights(filtered);
-});
-document.getElementById('searchClear').addEventListener('click', function() {
-  document.getElementById('searchInput').value = '';
-  searchQuery = '';
-  this.style.display = 'none';
-  const filtered = getFilteredFlights();
-  updateSearchCount(filtered.length);
-  renderFlights(filtered);
-});
-
-  function getFilteredFlights() {
-    let flights = allFlights;
-
-    // Apply status filter
-    if (activeFilter !== 'all') {
-      flights = flights.filter(f => {
-        const s = (f.flight_status || '').toLowerCase();
-        if (activeFilter === 'scheduled') return s.includes('sched');
-        if (activeFilter === 'active')    return s.includes('active') || s.includes('air');
-        if (activeFilter === 'landed')    return s.includes('land');
-        if (activeFilter === 'cancelled') return s.includes('cancel');
-        if (activeFilter === 'delayed')   return s.includes('delay') || parseInt((f.departure||{}).delay) > 0;
-        return true;
-      });
-    }
-
-    // Apply search filter
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      flights = flights.filter(f => {
-        const dep = f.departure || {};
-        const arr = f.arrival   || {};
-        const airline = f.airline || {};
-        const flight  = f.flight  || {};
-        return (
-          (flight.iata  || '').toLowerCase().includes(q) ||
-          (flight.icao  || '').toLowerCase().includes(q) ||
-          (airline.name || '').toLowerCase().includes(q) ||
-          (airline.iata || '').toLowerCase().includes(q) ||
-          (dep.iata     || '').toLowerCase().includes(q) ||
-          (dep.airport  || '').toLowerCase().includes(q) ||
-          (arr.iata     || '').toLowerCase().includes(q) ||
-          (arr.airport  || '').toLowerCase().includes(q)
-        );
-      });
-    }
-
-    return flights;
-  }
-
-  function updateSearchCount(count) {
-    const el = document.getElementById('searchCount');
-    el.textContent = searchQuery ? count + ' RESULT' + (count !== 1 ? 'S' : '') : '';
-  }
-
-  function applyFilter(filter) {
-    activeFilter = filter;
-    document.querySelectorAll('.filter-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.filter === filter);
-    });
-    const filtered = getFilteredFlights();
-    updateSearchCount(filtered.length);
-    renderFlights(filtered);
-  }
-
-  // ── Fetch ──
-  async function loadFlights(origin, destination, date, passengers) {
-    const board = document.getElementById('flightBoard');
-    board.innerHTML = '<div class="state-message"><span class="big">LOADING</span>Fetching live data...</div>';
-
-    try {
-        const res = await fetch('https://flight-project-production-7ab7.up.railway.app/flights/search', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({origin: origin, destination: destination, date: date, adults: parseInt(passengers)||1})});
-      const data = await res.json();
-      allFlights = (data.data || []).map(offer => {
-    const slice = offer.slices?.[0] || {};
-    const segments = slice.segments || [];
-    console.log('SEGMENTS COUNT:', segments.length, 'DATA:', JSON.stringify(segments.map(s => ({from: s.origin?.iata_code, to: s.destination?.iata_code}))));
-    let stops = null;
-    if (segments.length > 1) {
-      stops = segments.slice(0, -1).map(s => {
-        const dest = s.destination || {};
-        return dest.iata_code || dest.iata_city_code || '';
-      }).filter(Boolean).join(', ');
-    }
-    const duration = slice.duration || null;
-    return {
-      flight: { iata: segments[0]?.operating_carrier_flight_number || '-' },
-      airline: { name: offer.owner?.name || '-', iata: offer.owner?.iata_code || '' },
-      departure: { iata: slice.origin?.iata_code || '-', airport: slice.origin?.name || '-', scheduled: slice.departing_at || null, delay: 0 },
-      arrival: { iata: slice.destination?.iata_code || '-', airport: slice.destination?.name || '-' },
-      flight_status: 'scheduled',
-      stops: stops || null,
-      duration: duration,
-      segments: segments.length
-    };
-  });
-
-      if (!allFlights.length) {
-        board.innerHTML = '<div class="state-message"><span class="big">EMPTY</span>No flight data returned.</div>';
-        return;
-      }
-
-      applyFilter(activeFilter);
-    } catch (err) {
-      board.innerHTML = '<div class="state-message"><span class="big">ERROR</span>Could not connect to server. Is it running on port 3001?</div>';
-    }
-  }
-
-  // ── Events ──
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
-  });
-
-  document.getElementById('refreshBtn').addEventListener('click', loadFlights);
-document.getElementById('searchFlightsBtn').addEventListener('click', function() {
-  const from = document.getElementById('fromInput').value.toUpperCase().trim();
-  const to = document.getElementById('toInput').value.toUpperCase().trim();
-  const date = document.getElementById('dateInput').value;
-  const passengers = document.getElementById('passengersInput').value;
-  if (!from || !to || !date) { alert('Please fill in From, To, and Date!'); return; }
-  loadFlights(from, to, date, passengers);
-});
-const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
-document.getElementById('dateInput').value = tomorrow.toISOString().split('T')[0];
-
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    searchQuery = e.target.value.trim();
-    const filtered = getFilteredFlights();
-    updateSearchCount(filtered.length);
-    renderFlights(filtered);
-  });
-
-  document.getElementById('searchClear').addEventListener('click', () => {
-    searchQuery = '';
-    document.getElementById('searchInput').value = '';
-    const filtered = getFilteredFlights();
-    updateSearchCount(filtered.length);
-    renderFlights(filtered);
-  });
-
-  // ── Init ──
-  // loadFlights(); // removed auto-load
-
-
-const tom = new Date();
-tom.setDate(tom.getDate() + 1);
-document.getElementById('dateInput').value = tom.toISOString().split('T')[0];
-
-const airports = [
-  {iata:'MNL',name:'Ninoy Aquino International',city:'Manila',country:'Philippines'},
-  {iata:'CRK',name:'Clark International Airport',city:'Clark',country:'Philippines'},
-  {iata:'ILO',name:'Iloilo International Airport',city:'Iloilo',country:'Philippines'},
-  {iata:'BCD',name:'Bacolod-Silay Airport',city:'Bacolod',country:'Philippines'},
-  {iata:'GES',name:'General Santos International',city:'General Santos',country:'Philippines'},
-  {iata:'KLO',name:'Kalibo International Airport',city:'Kalibo Boracay',country:'Philippines'},
-  {iata:'MPH',name:'Godofredo P. Ramos Airport',city:'Caticlan Boracay',country:'Philippines'},
-  {iata:'TAG',name:'Tagbilaran Airport',city:'Tagbilaran Bohol',country:'Philippines'},
-  {iata:'PPS',name:'Puerto Princesa International',city:'Puerto Princesa',country:'Philippines'},
-  {iata:'CRK',name:'Clark International Airport',city:'Clark',country:'Philippines'},
-  {iata:'ILO',name:'Iloilo International Airport',city:'Iloilo',country:'Philippines'},
-  {iata:'BCD',name:'Bacolod-Silay Airport',city:'Bacolod',country:'Philippines'},
-  {iata:'GES',name:'General Santos International',city:'General Santos',country:'Philippines'},
-  {iata:'KLO',name:'Kalibo International Airport',city:'Kalibo Boracay',country:'Philippines'},
-  {iata:'MPH',name:'Godofredo P. Ramos Airport',city:'Caticlan Boracay',country:'Philippines'},
-  {iata:'TAG',name:'Tagbilaran Airport',city:'Tagbilaran Bohol',country:'Philippines'},
-  {iata:'PPS',name:'Puerto Princesa International',city:'Puerto Princesa',country:'Philippines'},
-  {iata:'ZAM',name:'Zamboanga International Airport',city:'Zamboanga',country:'Philippines'},
-  {iata:'CGY',name:'Laguindingan Airport',city:'Cagayan de Oro',country:'Philippines'},
-  {iata:'DGT',name:'Sibulan Airport',city:'Dumaguete',country:'Philippines'},
-  {iata:'TAC',name:'Daniel Z. Romualdez Airport',city:'Tacloban',country:'Philippines'},
-  {iata:'CRK',name:'Clark International Airport',city:'Clark',country:'Philippines'},
-  {iata:'ILO',name:'Iloilo International Airport',city:'Iloilo',country:'Philippines'},
-  {iata:'BCD',name:'Bacolod-Silay Airport',city:'Bacolod',country:'Philippines'},
-  {iata:'GES',name:'General Santos International',city:'General Santos',country:'Philippines'},
-  {iata:'KLO',name:'Kalibo International Airport',city:'Kalibo Boracay',country:'Philippines'},
-  {iata:'MPH',name:'Godofredo P. Ramos Airport',city:'Caticlan Boracay',country:'Philippines'},
-  {iata:'TAG',name:'Tagbilaran Airport',city:'Tagbilaran Bohol',country:'Philippines'},
-  {iata:'PPS',name:'Puerto Princesa International',city:'Puerto Princesa',country:'Philippines'},
-  {iata:'ZAM',name:'Zamboanga International Airport',city:'Zamboanga',country:'Philippines'},
-  {iata:'CGY',name:'Laguindingan Airport',city:'Cagayan de Oro',country:'Philippines'},
-  {iata:'DGT',name:'Sibulan Airport',city:'Dumaguete',country:'Philippines'},
-  {iata:'TAC',name:'Daniel Z. Romualdez Airport',city:'Tacloban',country:'Philippines'},
-  {iata:'LGP',name:'Legazpi Airport',city:'Legazpi',country:'Philippines'},
-  {iata:'OZC',name:'Labo Airport',city:'Ozamiz',country:'Philippines'},
-  {iata:'CEB',name:'Mactan-Cebu International',city:'Cebu',country:'Philippines'},
-  {iata:'DVO',name:'Francisco Bangoy International',city:'Davao',country:'Philippines'},
-  {iata:'LHR',name:'Heathrow Airport',city:'London',country:'UK'},
-  {iata:'LGW',name:'Gatwick Airport',city:'London',country:'UK'},
-  {iata:'JFK',name:'John F Kennedy International',city:'New York',country:'USA'},
-  {iata:'LAX',name:'Los Angeles International',city:'Los Angeles',country:'USA'},
-  {iata:'SFO',name:'San Francisco International',city:'San Francisco',country:'USA'},
-  {iata:'ORD',name:"O'Hare International",city:'Chicago',country:'USA'},
-  {iata:'SIN',name:'Singapore Changi Airport',city:'Singapore',country:'Singapore'},
-  {iata:'HKG',name:'Hong Kong International',city:'Hong Kong',country:'China'},
-  {iata:'NRT',name:'Narita International',city:'Tokyo',country:'Japan'},
-  {iata:'HND',name:'Haneda Airport',city:'Tokyo',country:'Japan'},
-  {iata:'ICN',name:'Incheon International',city:'Seoul',country:'South Korea'},
-  {iata:'BKK',name:'Suvarnabhumi Airport',city:'Bangkok',country:'Thailand'},
-  {iata:'KUL',name:'Kuala Lumpur International',city:'Kuala Lumpur',country:'Malaysia'},
-  {iata:'SYD',name:'Sydney Airport',city:'Sydney',country:'Australia'},
-  {iata:'MEL',name:'Melbourne Airport',city:'Melbourne',country:'Australia'},
-  {iata:'DXB',name:'Dubai International',city:'Dubai',country:'UAE'},
-  {iata:'AUH',name:'Abu Dhabi International',city:'Abu Dhabi',country:'UAE'},
-  {iata:'DOH',name:'Hamad International',city:'Doha',country:'Qatar'},
-  {iata:'CDG',name:'Charles de Gaulle Airport',city:'Paris',country:'France'},
-  {iata:'AMS',name:'Amsterdam Schiphol',city:'Amsterdam',country:'Netherlands'},
-  {iata:'FRA',name:'Frankfurt Airport',city:'Frankfurt',country:'Germany'},
-  {iata:'MAD',name:'Adolfo Suárez Madrid–Barajas',city:'Madrid',country:'Spain'},
-  {iata:'BCN',name:'Barcelona–El Prat',city:'Barcelona',country:'Spain'},
-  {iata:'FCO',name:'Leonardo da Vinci International',city:'Rome',country:'Italy'},
-  {iata:'MXP',name:'Milan Malpensa Airport',city:'Milan',country:'Italy'},
-  {iata:'PVG',name:'Shanghai Pudong International',city:'Shanghai',country:'China'},
-  {iata:'PEK',name:'Beijing Capital International',city:'Beijing',country:'China'},
-  {iata:'CGK',name:'Soekarno-Hatta International',city:'Jakarta',country:'Indonesia'},
-  {iata:'SGN',name:'Tan Son Nhat International',city:'Ho Chi Minh City',country:'Vietnam'},
-  {iata:'HAN',name:'Noi Bai International',city:'Hanoi',country:'Vietnam'},
-  {iata:'DAD',name:'Da Nang International',city:'Da Nang',country:'Vietnam'},
-  {iata:'DEL',name:'Indira Gandhi International',city:'New Delhi',country:'India'},
-  {iata:'BOM',name:'Chhatrapati Shivaji International',city:'Mumbai',country:'India'},
-  {iata:'YYZ',name:'Toronto Pearson International',city:'Toronto',country:'Canada'},
-  {iata:'YVR',name:'Vancouver International',city:'Vancouver',country:'Canada'},
-  {iata:'GRU',name:'São Paulo/Guarulhos International',city:'São Paulo',country:'Brazil'},
-  {iata:'EZE',name:'Ministro Pistarini International',city:'Buenos Aires',country:'Argentina'},
-  {iata:'JNB',name:'O.R. Tambo International',city:'Johannesburg',country:'South Africa'},
-  {iata:'CAI',name:'Cairo International',city:'Cairo',country:'Egypt'},
-  {iata:'IST',name:'Istanbul Airport',city:'Istanbul',country:'Turkey'},
-  {iata:'ZRH',name:'Zurich Airport',city:'Zurich',country:'Switzerland'},
-  {iata:'VIE',name:'Vienna International Airport',city:'Vienna',country:'Austria'},
-  {iata:'CPH',name:'Copenhagen Airport',city:'Copenhagen',country:'Denmark'},
-  {iata:'ARN',name:'Stockholm Arlanda Airport',city:'Stockholm',country:'Sweden'},
-  {iata:'OSL',name:'Oslo Gardermoen Airport',city:'Oslo',country:'Norway'},
-  {iata:'HEL',name:'Helsinki Vantaa Airport',city:'Helsinki',country:'Finland'},
-  {iata:'MAN',name:'Manchester Airport',city:'Manchester',country:'UK'},
-];
-
-function setupAutocomplete(inputId, dropdownId) {
-  const input = document.getElementById(inputId);
-  const dropdown = document.getElementById(dropdownId);
-  if (!input || !dropdown) return;
-
-  input.addEventListener('input', function() {
-    const val = this.value.toLowerCase().trim();
-    dropdown.innerHTML = '';
-    if (val.length < 1) { dropdown.style.display = 'none'; return; }
-
-    const matches = airports.filter(a =>
-      a.iata.toLowerCase().includes(val) ||
-      a.name.toLowerCase().includes(val) ||
-      a.city.toLowerCase().includes(val) ||
-      a.country.toLowerCase().includes(val)
-    ).slice(0, 8);
-
-    if (matches.length === 0) { dropdown.style.display = 'none'; return; }
-
-    matches.forEach(a => {
-      const item = document.createElement('div');
-      item.className = 'autocomplete-item';
-      item.innerHTML = '<span class="iata">' + a.iata + '</span>' + a.name + '<br><span class="city">' + a.city + ', ' + a.country + '</span>';
-      item.addEventListener('click', function() {
-        input.value = a.iata;
-        dropdown.style.display = 'none';
-      });
-      dropdown.appendChild(item);
-    });
-    dropdown.style.display = 'block';
-  });
-
-  document.addEventListener('click', function(e) {
-    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.style.display = 'none';
-    }
-  });
 }
 
-setupAutocomplete('fromInput', 'fromDropdown');
-setupAutocomplete('toInput', 'toDropdown');
-</script>
-<!-- BOOKING MODAL -->
-<div id="bookingModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;overflow-y:auto">
-<div style="max-width:600px;margin:40px auto;background:#0f0f1a;border:1px solid #f5c518;padding:30px;border-radius:8px">
-<h2 style="color:#f5c518;font-family:monospace;margin-bottom:20px">✈ BOOK FLIGHT</h2>
-<div id="flightSummary" style="color:#f5c518;background:#1a1a2e;padding:15px;border-radius:5px;margin-bottom:20px"></div>
-
-<h3 style="color:#f5c518;font-family:monospace;margin-bottom:15px">PASSENGER INFORMATION</h3>
-
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
-<div><label style="color:#aaa;font-size:12px">FIRST NAME</label><br>
-<input id="firstName" type="text" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-
-<div><label style="color:#aaa;font-size:12px">LAST NAME</label><br>
-<input id="lastName" type="text" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-
-<div><label style="color:#aaa;font-size:12px">GENDER</label><br>
-<select id="gender" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
-<option>Male</option><option>Female</option><option>Other</option></select></div>
-
-<div><label style="color:#aaa;font-size:12px">PASSENGER TYPE</label><br>
-<select id="paxType" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
-<option>Adult</option><option>Minor</option></select></div>
-
-<div><label style="color:#aaa;font-size:12px">DATE OF BIRTH</label><br>
-<input id="dob" type="date" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-
-<div><label style="color:#aaa;font-size:12px">PASSPORT NUMBER</label><br>
-<input id="passport" type="text" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-
-<div><label style="color:#aaa;font-size:12px">NATIONALITY</label><br>
-<input id="nationality" type="text" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-
-<div><label style="color:#aaa;font-size:12px">EMAIL</label><br>
-<input id="email" type="email" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-
-<div><label style="color:#aaa;font-size:12px">PHONE</label><br>
-<input id="phone" type="tel" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-</div>
-
-<h3 style="color:#f5c518;font-family:monospace;margin:20px 0 15px">FLIGHT PREFERENCES</h3>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
-<div><label style="color:#aaa;font-size:12px">SEAT CLASS</label><br>
-<select id="seatClass" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
-<option>Economy</option><option>Business</option><option>First Class</option></select></div>
-
-<div><label style="color:#aaa;font-size:12px">SEAT PREFERENCE</label><br>
-<select id="seatPref" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
-<option>Window</option><option>Aisle</option><option>Middle</option></select></div>
-
-<div><label style="color:#aaa;font-size:12px">MEAL PREFERENCE</label><br>
-<select id="meal" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
-<option>Regular</option><option>Vegetarian</option><option>Halal</option><option>Kosher</option><option>Vegan</option></select></div>
-</div>
-
-<h3 style="color:#f5c518;font-family:monospace;margin:20px 0 15px">PAYMENT METHOD</h3>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:15px">
-<div onclick="selectPayment(this,'Credit Card')" class="payBtn" style="border:1px solid #f5c518;padding:10px;text-align:center;cursor:pointer;color:#f5c518;border-radius:4px">💳 Credit Card</div>
-<div onclick="selectPayment(this,'PayPal')" class="payBtn" style="border:1px solid #f5c518;padding:10px;text-align:center;cursor:pointer;color:#f5c518;border-radius:4px">🅿 PayPal</div>
-<div onclick="selectPayment(this,'GCash')" class="payBtn" style="border:1px solid #f5c518;padding:10px;text-align:center;cursor:pointer;color:#f5c518;border-radius:4px">📱 GCash</div>
-</div>
-<input id="selectedPayment" type="hidden" value="Credit Card">
-
-<!-- Credit Card Fields -->
-<div id="ccFields" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px">
-<div style="grid-column:1/-1"><label style="color:#aaa;font-size:12px">CARD NUMBER</label><br>
-<input id="ccNumber" type="text" maxlength="19" placeholder="1234 5678 9012 3456" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-<div><label style="color:#aaa;font-size:12px">CARDHOLDER NAME</label><br>
-<input id="ccName" type="text" placeholder="Name on card" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-<div><label style="color:#aaa;font-size:12px">EXPIRY (MM/YY)</label><br>
-<input id="ccExpiry" type="text" maxlength="5" placeholder="MM/YY" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-<div><label style="color:#aaa;font-size:12px">CVV</label><br>
-<input id="ccCvv" type="password" maxlength="4" placeholder="***" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-</div></div>
-
-<!-- PayPal Fields -->
-<div id="ppFields" style="display:none;margin-bottom:15px">
-<label style="color:#aaa;font-size:12px">PAYPAL EMAIL ADDRESS</label><br>
-<input id="ppEmail" type="email" placeholder="your@paypal.com" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px">
-</div>
-
-<!-- GCash Fields -->
-<div id="gcFields" style="display:none;margin-bottom:15px;display:grid;grid-template-columns:1fr 1fr;gap:15px">
-<div><label style="color:#aaa;font-size:12px">GCASH MOBILE NUMBER</label><br>
-<input id="gcNumber" type="tel" placeholder="09XX XXX XXXX" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-<div><label style="color:#aaa;font-size:12px">GCASH ACCOUNT NAME</label><br>
-<input id="gcName" type="text" placeholder="Account name" style="width:100%;background:#1a1a2e;border:1px solid #f5c518;color:#fff;padding:8px;border-radius:4px"></div>
-</div>
-
-<div style="display:flex;gap:10px;margin-top:10px">
-<button onclick="generateTicket()" style="flex:1;background:#f5c518;color:#000;border:none;padding:15px;font-weight:bold;cursor:pointer;border-radius:4px;font-size:16px">✈ GENERATE E-TICKET</button>
-<button onclick="document.getElementById('bookingModal').style.display='none'" style="background:#333;color:#fff;border:none;padding:15px;cursor:pointer;border-radius:4px">CANCEL</button>
-</div>
-</div>
-</div>
-
-<script>
-let selectedFlight = {};
-
-function setTripType(type, btn) {
-  document.querySelectorAll('#btnOneway,#btnRoundtrip,#btnMulticity').forEach(b => {
-    b.style.background = 'transparent'; b.style.color = '#f5c518';
-  });
-  btn.style.background = '#f5c518';
-  btn.style.color = '#000';
-  document.getElementById('returnDateGroup').style.display = type === 'roundtrip' ? 'flex' : 'none';
-  document.getElementById('multiCityGroup').style.display = type === 'multicity' ? 'block' : 'none';
-  window.tripType = type;
-}
-window.tripType = 'oneway';
-
-function selectPayment(el, method) {
-  document.querySelectorAll('.payBtn').forEach(b => { b.style.background = 'transparent'; b.style.color = '#f5c518'; });
-  el.style.background = '#f5c518';
-  el.style.color = '#000';
-  document.getElementById('selectedPayment').value = method;
-  document.getElementById('ccFields').style.display = method === 'Credit Card' ? 'grid' : 'none';
-  document.getElementById('ppFields').style.display = method === 'PayPal' ? 'block' : 'none';
-  document.getElementById('gcFields').style.display = method === 'GCash' ? 'grid' : 'none';
-}
-
-document.addEventListener('click', function(e) {
-  const row = e.target.closest('.flight-row');
-  if (!row) return;
-  const cells = row.querySelectorAll('.airport-code');
-  const airline = row.querySelector('.airline-name')?.textContent;
-  const flight = row.querySelector('.flight-number')?.textContent;
-  const from = cells[0]?.textContent;
-  const to = cells[1]?.textContent;
-  selectedFlight = { airline, flight, from, to };
-  document.getElementById('flightSummary').innerHTML = 
-    `<b>Flight:</b> ${flight} | <b>Airline:</b> ${airline}<br><b>Route:</b> ${from} ✈ ${to}`;
+function selectFlight(id, from, to, airline, price, currency, dep, arr) {
+  selectedOffer = { id, from, to, airline, price, currency, dep, arr };
+  document.getElementById('flightSummary').innerHTML =
+    <b>${airline}</b><br>${from} → ${to}<br>Departs: ${dep} | Arrives: ${arr}<br>Price: <span style="color:#FFD700">${currency} ${price}</span>;
   document.getElementById('bookingModal').style.display = 'block';
-});
+}
 
-function generateTicket() {
-  const ref = 'BK' + Math.random().toString(36).substr(2,8).toUpperCase();
+function closeModal() {
+  document.getElementById('bookingModal').style.display = 'none';
+}
+
+async function bookFlight() {
+  if (!selectedOffer) return;
+  const passenger = {
+    title: 'mr',
+    given_name: document.getElementById('firstName').value,
+    family_name: document.getElementById('lastName').value,
+    email: document.getElementById('email').value,
+    born_on: document.getElementById('dob').value,
+    gender: document.getElementById('gender').value,
+    phone_number: '+63 912 345 6789'
+  };
+
+  try {
+    const res = await fetch('/flights/book', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ offerId: selectedOffer.id, passengers: [passenger] })
+    });
+    const data = await res.json();
+    closeModal();
+    generateTicket(data.data);
+  } catch (err) {
+    alert('Booking failed. Please try again.');
+  }
+}
+
+function generateTicket(order) {
+  const ref = order?.booking_reference || 'BK' + Math.random().toString(36).substr(2,6).toUpperCase();
   const w = window.open('');
-  w.document.write(`<html><head><style>
-  body{background:#000;color:#FFD700;font-family:monospace;padding:40px;max-width:700px;margin:0 auto}
-  h1{font-size:28px;border-bottom:2px solid #FFD700;padding-bottom:10px}
-  .row{display:flex;justify-content:space-between;margin:10px 0;padding:8px 0;border-bottom:1px solid #333}
-  .label{color:#aaa;font-size:12px}
-  .val{color:#FFD700;font-weight:bold}
-  .route{font-size:36px;text-align:center;margin:20px 0}
-  .ref{background:#FFD700;color:#000;padding:15px;text-align:center;font-size:24px;font-weight:bold;margin:20px 0;border-radius:4px}
-  button{background:#FFD700;color:#000;border:none;padding:15px 30px;font-size:16px;cursor:pointer;margin-top:20px;font-weight:bold}
+  w.document.write(`<!DOCTYPE html><html><head><title>E-Ticket</title>
+  <style>
+    body{background:#000;color:#FFD700;font-family:monospace;padding:40px;max-width:600px;margin:0 auto}
+    h1{font-size:24px;border-bottom:2px solid #FFD700;padding-bottom:10px;margin-bottom:20px}
+    .row{display:flex;justify-content:space-between;margin:10px 0;padding:8px 0;border-bottom:1px solid #333}
+    .label{color:#888;font-size:12px}
+    .val{font-weight:bold}
+    .ref{font-size:36px;text-align:center;margin:20px 0;letter-spacing:4px}
+    button{background:#FFD700;color:#000;border:none;padding:12px 30px;cursor:pointer;font-weight:bold;margin-top:20px;width:100%;font-size:14px}
   </style></head><body>
   <h1>✈ BOARDING PASS / E-TICKET</h1>
-  <div class="route">${selectedFlight.from} ✈ ${selectedFlight.to}</div>
-  <div class="ref">BOOKING REF: ${ref}</div>
+  <div class="ref">${ref}</div>
+  <div class="row"><span class="label">ROUTE</span><span class="val">${selectedOffer.from} → ${selectedOffer.to}</span></div>
+  <div class="row"><span class="label">AIRLINE</span><span class="val">${selectedOffer.airline}</span></div>
+  <div class="row"><span class="label">DEPARTURE</span><span class="val">${selectedOffer.dep}</span></div>
+  <div class="row"><span class="label">ARRIVAL</span><span class="val">${selectedOffer.arr}</span></div>
   <div class="row"><span class="label">PASSENGER</span><span class="val">${document.getElementById('firstName').value} ${document.getElementById('lastName').value}</span></div>
-  <div class="row"><span class="label">GENDER</span><span class="val">${document.getElementById('gender').value}</span></div>
-  <div class="row"><span class="label">PASSENGER TYPE</span><span class="val">${document.getElementById('paxType').value}</span></div>
-  <div class="row"><span class="label">DATE OF BIRTH</span><span class="val">${document.getElementById('dob').value}</span></div>
-  <div class="row"><span class="label">PASSPORT</span><span class="val">${document.getElementById('passport').value}</span></div>
-  <div class="row"><span class="label">NATIONALITY</span><span class="val">${document.getElementById('nationality').value}</span></div>
-  <div class="row"><span class="label">EMAIL</span><span class="val">${document.getElementById('email').value}</span></div>
-  <div class="row"><span class="label">PHONE</span><span class="val">${document.getElementById('phone').value}</span></div>
-  <div class="row"><span class="label">FLIGHT</span><span class="val">${selectedFlight.flight} | ${selectedFlight.airline}</span></div>
-  <div class="row"><span class="label">SEAT CLASS</span><span class="val">${document.getElementById('seatClass').value}</span></div>
-  <div class="row"><span class="label">SEAT PREFERENCE</span><span class="val">${document.getElementById('seatPref').value}</span></div>
-  <div class="row"><span class="label">MEAL</span><span class="val">${document.getElementById('meal').value}</span></div>
-  <div class="row"><span class="label">PAYMENT</span><span class="val">${document.getElementById('selectedPayment').value}</span></div>
+  <div class="row"><span class="label">PRICE</span><span class="val">${selectedOffer.currency} ${selectedOffer.price}</span></div>
   <div class="row"><span class="label">DATE ISSUED</span><span class="val">${new Date().toDateString()}</span></div>
-  <button onclick="window.print()">🖨 DOWNLOAD / PRINT TICKET</button>
+  <button onclick="window.print()">PRINT / DOWNLOAD TICKET</button>
   </body></html>`);
-  document.getElementById('bookingModal').style.display = 'none';
 }
 </script>
 </body>
