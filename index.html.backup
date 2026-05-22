@@ -1,48 +1,210 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.4">
-  <style type="text/css">
-    body {background-color: #0a0a0d}
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 26.4px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 8.4px 'Helvetica Neue'; color: #484767; -webkit-text-stroke: #484767}
-    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 19.2px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15}
-    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 7.2px 'Helvetica Neue'; color: #484767; -webkit-text-stroke: #484767}
-    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 9.0px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15; background-color: #0d0d14}
-    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 9.0px 'Helvetica Neue'; color: #484767; -webkit-text-stroke: #484767; background-color: #0d0d14}
-    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 9.0px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15}
-    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; font: 7.2px 'Helvetica Neue'; color: #f1bb15; -webkit-text-stroke: #f1bb15}
-    p.p9 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 36.0px 'Helvetica Neue'; color: #171628; -webkit-text-stroke: #171628}
-    p.p10 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 10.2px 'Helvetica Neue'; color: #484767; -webkit-text-stroke: #484767}
-    span.s1 {font-kerning: none; background-color: #0d0d14}
-    span.s2 {font-kerning: none}
-    span.s3 {font-kerning: none; background-color: #0a0a0d}
-    span.s4 {font-kerning: none; background-color: #0b0b11}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flight Departures</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0a; color: #fff; font-family: monospace; }
+header { padding: 20px 40px; border-bottom: 1px solid #FFD700; display: flex; justify-content: space-between; align-items: center; }
+.logo { color: #FFD700; font-size: 24px; font-weight: bold; }
+.clock { color: #FFD700; font-size: 14px; }
+.search-bar { padding: 20px 40px; background: #111; }
+.search-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+label { font-size: 10px; color: #888; text-transform: uppercase; }
+input, select { background: #222; border: 1px solid #444; color: #fff; padding: 8px 12px; font-family: monospace; font-size: 14px; width: 120px; }
+.search-btn { background: #FFD700; color: #000; border: none; padding: 9px 24px; font-weight: bold; font-family: monospace; cursor: pointer; font-size: 14px; }
+.search-btn:hover { background: #ffea00; }
+.results { padding: 20px 40px; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 8px 12px; font-size: 11px; color: #888; border-bottom: 1px solid #FFD700; }
+td { padding: 10px 12px; border-bottom: 1px solid #222; font-size: 13px; cursor: pointer; }
+tr:hover td { background: #1a1a1a; }
+.price { color: #FFD700; font-weight: bold; }
+.status { padding: 3px 8px; font-size: 11px; border-radius: 2px; }
+.scheduled { background: #1a3a1a; color: #4CAF50; }
+.msg { padding: 40px; text-align: center; color: #555; font-size: 14px; }
+
+/* Modal */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; overflow-y: auto; }
+.modal-box { background: #111; border: 1px solid #FFD700; max-width: 500px; margin: 40px auto; padding: 30px; }
+.modal-title { color: #FFD700; font-size: 18px; margin-bottom: 20px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 11px; color: #888; margin-bottom: 4px; }
+.form-group input, .form-group select { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 8px; font-family: monospace; }
+.book-btn { background: #FFD700; color: #000; border: none; padding: 12px 30px; font-weight: bold; font-family: monospace; cursor: pointer; width: 100%; margin-top: 10px; font-size: 14px; }
+.close-btn { float: right; background: none; border: none; color: #888; cursor: pointer; font-size: 18px; }
+.flight-summary { background: #1a1a1a; padding: 15px; margin-bottom: 20px; font-size: 13px; line-height: 1.8; }
+</style>
 </head>
 <body>
-<p class="p1"><span class="s1">✈ DEPARTURES</span></p>
-<p class="p2"><span class="s1">LIVE FLIGHT BOARD</span></p>
-<p class="p3"><span class="s1">--:--:--</span></p>
-<p class="p4"><span class="s1">LOCAL TIME</span></p>
-<p class="p5"><span class="s2">ALL</span></p>
-<p class="p6"><span class="s2">SCHEDULED</span></p>
-<p class="p6"><span class="s2">IN AIR</span></p>
-<p class="p6"><span class="s2">LANDED</span></p>
-<p class="p6"><span class="s2">CANCELLED</span></p>
-<p class="p6"><span class="s2">DELAYED</span></p>
-<p class="p7"><span class="s3">↻ REFRESH</span></p>
-<p class="p8"><span class="s4">FLIGHT</span></p>
-<p class="p8"><span class="s4">AIRLINE</span></p>
-<p class="p8"><span class="s4">FROM</span></p>
-<p class="p8"><span class="s4">TO</span></p>
-<p class="p8"><span class="s4">SCHEDULED</span></p>
-<p class="p8"><span class="s4">STATUS</span></p>
-<p class="p9"><span class="s2">LOADING</span></p>
-<p class="p10"><span class="s2">FETCHING LIVE FLIGHT DATA...</span></p>
+
+<header>
+  <div class="logo">✈ DEPARTURES <span style="font-size:12px;color:#888">LIVE FLIGHT BOARD</span></div>
+  <div class="clock" id="clock"></div>
+</header>
+
+<div class="search-bar">
+  <div class="search-row">
+    <div class="field"><label>From</label><input id="from" value="MNL" maxlength="3" style="text-transform:uppercase"></div>
+    <div class="field"><label>To</label><input id="to" value="SIN" maxlength="3" style="text-transform:uppercase"></div>
+    <div class="field"><label>Date</label><input id="date" type="date"></div>
+    <div class="field"><label>Passengers</label><select id="passengers"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+    <button class="search-btn" onclick="searchFlights()">SEARCH</button>
+  </div>
+</div>
+
+<div class="results">
+  <table>
+    <thead><tr>
+      <th>FLIGHT</th><th>AIRLINE</th><th>FROM</th><th>TO</th><th>DEPARTS</th><th>ARRIVES</th><th>PRICE</th><th>STATUS</th>
+    </tr></thead>
+    <tbody id="flightTable"><tr><td colspan="8" class="msg">Enter your route and click SEARCH</td></tr></tbody>
+  </table>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal" id="bookingModal">
+  <div class="modal-box">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div class="modal-title">BOOK FLIGHT</div>
+    <div class="flight-summary" id="flightSummary"></div>
+    <div class="form-group"><label>First Name</label><input id="firstName" placeholder="Juan"></div>
+    <div class="form-group"><label>Last Name</label><input id="lastName" placeholder="dela Cruz"></div>
+    <div class="form-group"><label>Email</label><input id="email" type="email" placeholder="juan@email.com"></div>
+    <div class="form-group"><label>Date of Birth</label><input id="dob" type="date"></div>
+    <div class="form-group"><label>Gender</label><select id="gender"><option value="m">Male</option><option value="f">Female</option></select></div>
+    <button class="book-btn" onclick="bookFlight()">CONFIRM BOOKING</button>
+  </div>
+</div>
+
+<script>
+let selectedOffer = null;
+
+// Clock
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Set default date to tomorrow
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+document.getElementById('date').value = tomorrow.toISOString().split('T')[0];
+
+async function searchFlights() {
+  const from = document.getElementById('from').value.toUpperCase();
+  const to = document.getElementById('to').value.toUpperCase();
+  const date = document.getElementById('date').value;
+  const passengers = parseInt(document.getElementById('passengers').value);
+
+  document.getElementById('flightTable').innerHTML = '<tr><td colspan="8" class="msg">LOADING... Fetching live flight data</td></tr>';
+
+  try {
+    const res = await fetch('/flights/search', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ origin: from, destination: to, date, adults: passengers })
+    });
+    const data = await res.json();
+
+    if (!data.data || data.data.length === 0) {
+      document.getElementById('flightTable').innerHTML = '<tr><td colspan="8" class="msg">No flights found</td></tr>';
+      return;
+    }
+
+    const rows = data.data.slice(0, 20).map(offer => {
+      const slice = offer.slices[0];
+      const seg = slice.segments[0];
+      const dep = new Date(seg.departing_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      const arr = new Date(seg.arriving_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      const price = parseFloat(offer.total_amount).toFixed(2);
+      const currency = offer.total_currency;
+      const airline = seg.operating_carrier.name;
+      const flightNum = seg.operating_carrier_flight_number;
+
+      return `<tr onclick="selectFlight('${offer.id}', '${from}', '${to}', '${airline}', '${price}', '${currency}', '${dep}', '${arr}')">
+        <td>${flightNum || '-'}</td>
+        <td>${airline}</td>
+        <td>${from}</td>
+        <td>${to}</td>
+        <td>${dep}</td>
+        <td>${arr}</td>
+        <td class="price">${currency} ${price}</td>
+        <td><span class="status scheduled">SCHEDULED</span></td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('flightTable').innerHTML = rows;
+  } catch (err) {
+    document.getElementById('flightTable').innerHTML = '<tr><td colspan="8" class="msg">Error connecting to server</td></tr>';
+  }
+}
+
+function selectFlight(id, from, to, airline, price, currency, dep, arr) {
+  selectedOffer = { id, from, to, airline, price, currency, dep, arr };
+  document.getElementById('flightSummary').innerHTML =
+    <b>${airline}</b><br>${from} → ${to}<br>Departs: ${dep} | Arrives: ${arr}<br>Price: <span style="color:#FFD700">${currency} ${price}</span>;
+  document.getElementById('bookingModal').style.display = 'block';
+}
+
+function closeModal() {
+  document.getElementById('bookingModal').style.display = 'none';
+}
+
+async function bookFlight() {
+  if (!selectedOffer) return;
+  const passenger = {
+    title: 'mr',
+    given_name: document.getElementById('firstName').value,
+    family_name: document.getElementById('lastName').value,
+    email: document.getElementById('email').value,
+    born_on: document.getElementById('dob').value,
+    gender: document.getElementById('gender').value,
+    phone_number: '+63 912 345 6789'
+  };
+
+  try {
+    const res = await fetch('/flights/book', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ offerId: selectedOffer.id, passengers: [passenger] })
+    });
+    const data = await res.json();
+    closeModal();
+    generateTicket(data.data);
+  } catch (err) {
+    alert('Booking failed. Please try again.');
+  }
+}
+
+function generateTicket(order) {
+  const ref = order?.booking_reference || 'BK' + Math.random().toString(36).substr(2,6).toUpperCase();
+  const html = '<!DOCTYPE html><html><head><title>E-Ticket</title>
+  <style>
+    body{background:#000;color:#FFD700;font-family:monospace;padding:40px;max-width:600px;margin:0 auto}
+    h1{font-size:24px;border-bottom:2px solid #FFD700;padding-bottom:10px;margin-bottom:20px}
+    .row{display:flex;justify-content:space-between;margin:10px 0;padding:8px 0;border-bottom:1px solid #333}
+    .label{color:#888;font-size:12px}
+    .val{font-weight:bold}
+    .ref{font-size:36px;text-align:center;margin:20px 0;letter-spacing:4px}
+    button{background:#FFD700;color:#000;border:none;padding:12px 30px;cursor:pointer;font-weight:bold;margin-top:20px;width:100%;font-size:14px}
+  </style></head><body>
+  <h1>✈ BOARDING PASS / E-TICKET</h1>
+  <div class="ref">${ref}</div>
+  <div class="row"><span class="label">ROUTE</span><span class="val">${selectedOffer.from} → ${selectedOffer.to}</span></div>
+  <div class="row"><span class="label">AIRLINE</span><span class="val">${selectedOffer.airline}</span></div>
+  <div class="row"><span class="label">DEPARTURE</span><span class="val">${selectedOffer.dep}</span></div>
+  <div class="row"><span class="label">ARRIVAL</span><span class="val">${selectedOffer.arr}</span></div>
+  <div class="row"><span class="label">PASSENGER</span><span class="val">${document.getElementById('firstName').value} ${document.getElementById('lastName').value}</span></div>
+  <div class="row"><span class="label">PRICE</span><span class="val">${selectedOffer.currency} ${selectedOffer.price}</span></div>
+  <div class="row"><span class="label">DATE ISSUED</span><span class="val">${new Date().toDateString()}</span></div>
+  <button onclick="window.print()">PRINT / DOWNLOAD TICKET</button>
+  </body></html>`);
+}
+</script>
 </body>
 </html>
